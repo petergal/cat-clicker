@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css?family=Lato:100,200,300,400" rel="stylesheet" type="text/css">
+        <title>Cat Clicker</title>
+        <style>
+            .catPic {
+                cursor: pointer;
+            }
+
+            h3 {
+                font: 200 2em "Lato", sans-serif;
+                margin: auto;
+                padding: 0.5em;
+            }
+
+            .normalText {
+                font-family: "Lato", sans-serif;
+                font: 100 1em "Lato";
+            }
+
+            .small {
+                font-size: small;
+            }
+
+        </style>
+        <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    </head>
+
+    <body>
+        <div id="cat-clicker">
+            <h3>The Cat</h3>
+
+            <figure>
+                <img class="catPic" src="https://placekitten.com/400/300" alt="kitten">
+                <footer class="normalText small">Photo by placekitten.com</footer>
+                <figcaption>
+
+                </figcaption>
+            </figure>
+            <p class="normalText">
+                Number of clicks so far: <span class="clicks">0</span>
+            </p>
+        </div>
+
+        <script>
+            let clickCount = 0;
+            if (localStorage.getItem('cat-clicker-counter')) {
+                clickCount = localStorage.getItem('cat-clicker-counter');
+                document.getElementsByClassName('clicks')[0].textContent = clickCount;
+            }
+            $('.catPic').on('click', function () {
+                clickCount++;
+                localStorage.setItem('cat-clicker-counter', clickCount);
+                document.getElementsByClassName('clicks')[0].textContent = clickCount;
+            });
+        </script>
+    </body>
+</html>
