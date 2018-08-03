@@ -9,6 +9,8 @@
         <style>
             .catPic {
                 cursor: pointer;
+                max-width: 400px;
+                max-height: 300px;
             }
 
             h3 {
@@ -17,8 +19,13 @@
                 padding: 0.5em;
             }
 
+            .caption {
+                font: 200 1.5em "Lato", sans-serif;
+                margin: auto;
+                padding: 0.5em 0;
+            }
+
             .normalText {
-                font-family: "Lato", sans-serif;
                 font: 100 1em "Lato";
             }
 
@@ -32,30 +39,73 @@
 
     <body>
         <div id="cat-clicker">
-            <h3>The Cat</h3>
+            <h3>A Cat Clicker</h3>
+            <div id="container"></div>
 
-            <figure>
-                <img class="catPic" src="https://placekitten.com/400/300" alt="kitten">
-                <footer class="normalText small">Photo by placekitten.com</footer>
-                <figcaption>
-
-                </figcaption>
-            </figure>
             <p class="normalText">
-                Number of clicks so far: <span class="clicks">0</span>
+                Number of clicks so far: <span class="totalClicks">0</span>
             </p>
         </div>
 
+        <template>
+            <figure>
+                <figcaption class="caption"></figcaption>
+                <img class="catPic" src="" alt="kitten">
+                <footer class="normalText small">Photo by</footer>
+                <p class="normalText"></p>
+            </figure>
+        </template>
+
         <script>
-            let clickCount = 0;
-            if (localStorage.getItem('cat-clicker-counter')) {
-                clickCount = localStorage.getItem('cat-clicker-counter');
-                document.getElementsByClassName('clicks')[0].textContent = clickCount;
+            let cats;
+            if (localStorage.getItem('catClickerData')) {
+                catsText = localStorage.getItem("catClickerData");
+                cats = JSON.parse(catsText);
+            } else {
+                cats = {
+                    "totalClicks": 0,
+                    cats: [
+                        {
+                            "name": "Struppi",
+                            "picUrl": "https://placekitten.com/400/300",
+                            "picProvider": "Photo by placekitten.com",
+                            "clicks": 0
+                        },
+                        {
+                            "name": "Garfield",
+                            "picUrl": "https://images.unsplash.com/photo-1478098711619-5ab0b478d6e6?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=eb029e07f8e81d2f7332382b88f2746c&auto=format&fit=crop&w=2550&q=80",
+                            "picProvider": "Photo by https://images.unsplash.com",
+                            "clicks": 0
+                        },
+                    ]
+                };
             }
-            $('.catPic').on('click', function () {
-                clickCount++;
-                localStorage.setItem('cat-clicker-counter', clickCount);
-                document.getElementsByClassName('clicks')[0].textContent = clickCount;
+
+            document.getElementsByClassName('totalClicks')[0].textContent = cats.totalClicks;
+
+            for (let i = 0; i < cats.cats.length; i++) {
+                let content = document.querySelector('template').content;
+                content.querySelector('img').id = cats.cats[i].name;
+                content.querySelector('img').src = cats.cats[i].picUrl;
+                content.querySelector('footer').textContent = cats.cats[i].picProvider;
+                content.querySelector('figcaption').textContent = "My name is " + cats.cats[i].name;
+                content.querySelector('p').id = i;
+                content.querySelector('p').textContent = "I have " + cats.cats[i].clicks + " clicks so far.";
+                document.querySelector('#container').appendChild(document.importNode(content, true));
+            }
+
+
+            $(".catPic").on('click', function (event) {
+                cats.totalClicks++;
+                for (let i = 0; i < cats.cats.length; i++) {
+                    if (event.target.id === cats.cats[i].name) {
+                        cats.cats[i].clicks++;
+                        document.getElementById(i).textContent = "I have " + cats.cats[i].clicks + " clicks so far.";
+                    }
+                }
+                let catsJson = JSON.stringify(cats);
+                localStorage.setItem("catClickerData", catsJson);
+                document.getElementsByClassName('totalClicks')[0].textContent = cats.totalClicks;
             });
         </script>
     </body>
