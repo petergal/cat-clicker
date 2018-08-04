@@ -117,8 +117,10 @@
                 };
             }
 
+            // total clicks
             document.getElementsByClassName('totalClicks')[0].textContent = cats.totalClicks;
 
+            // create list
             for (let i = 0; i < cats.cats.length; i++) {
                 let content = document.querySelector('#list').content;
                 content.querySelector('li').id = "list-" + cats.cats[i].name;
@@ -126,10 +128,11 @@
                 document.querySelector('#list-container').appendChild(document.importNode(content, true));
             }
 
+            // show clicked cat pic
             $("li").on('click', function (event) {
                 for (let i = 0; i < cats.cats.length; i++) {
                     if (event.target.id === "list-" + cats.cats[i].name) {
-                        // remove bestehendes cat pic
+                        // remove existing cat pic
                         let figureDoc = document.querySelector('figure');
                         if (figureDoc) {
                             figureDoc.remove();
@@ -144,7 +147,7 @@
                         content.querySelector('p').textContent = "I have " + cats.cats[i].clicks + " clicks so far.";
                         document.querySelector('#picture-container').appendChild(document.importNode(content, true));
 
-                        // create event for cat pic
+                        // create event for cat pic to handle clicks
                         $(".catPic").on('click', function (event) {
                             cats.totalClicks++;
                             for (let i = 0; i < cats.cats.length; i++) {
