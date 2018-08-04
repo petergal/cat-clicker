@@ -131,8 +131,11 @@
             // show clicked cat pic
             $("li").on('click', function (event) {
                 for (let i = 0; i < cats.cats.length; i++) {
+
+                    // identify clicked cat
                     if (event.target.id === "list-" + cats.cats[i].name) {
-                        // remove existing cat pic
+
+                        // remove existing cat pic if present
                         let figureDoc = document.querySelector('figure');
                         if (figureDoc) {
                             figureDoc.remove();
@@ -161,6 +164,7 @@
                             document.getElementsByClassName('totalClicks')[0].textContent = cats.totalClicks;
                         });
                     }
+
                 }
             });
 
