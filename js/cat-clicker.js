@@ -76,7 +76,7 @@ $(function () {
             viewCatList.render();
         },
         render: function () {
-            var cats = model.getCats();
+            var cats = octopus.getCats();
             document.getElementsByClassName("totalClicks")[0].textContent = cats.totalClicks;
 
             for (let i = 0; i < cats.cats.length; i++) {
@@ -90,7 +90,7 @@ $(function () {
 
     var viewCat = {
         init: function () {
-            var cats = model.getCats();
+            var cats = octopus.getCats();
             $("li").on("click", function (event) {
                 for (let i = 0; i < cats.cats.length; i++) {
 
@@ -122,7 +122,7 @@ $(function () {
                                 }
                             }
                             document.getElementsByClassName("totalClicks")[0].textContent = cats.totalClicks;
-                            model.saveCats(cats);
+                            octopus.saveCats(cats);
                         });
                     }
 
