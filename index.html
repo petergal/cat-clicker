@@ -2,8 +2,8 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <link href="https://fonts.googleapis.com/css?family=Lato:100,200,300,400" rel="stylesheet" type="text/css">
         <title>Cat Clicker</title>
         <style>
@@ -63,7 +63,7 @@
         <template id="picture">
             <figure>
                 <figcaption class="caption"></figcaption>
-                <img class="catPic" src="" alt="kitten">
+                <img alt="kitten" class="catPic" src="">
                 <footer class="normalText small">Photo by</footer>
                 <p class="normalText"></p>
             </figure>
@@ -71,7 +71,7 @@
 
         <script>
             let cats;
-            if (localStorage.getItem('catClickerData')) {
+            if (localStorage.getItem("catClickerData")) {
                 catsText = localStorage.getItem("catClickerData");
                 cats = JSON.parse(catsText);
             } else {
@@ -118,40 +118,40 @@
             }
 
             // total clicks
-            document.getElementsByClassName('totalClicks')[0].textContent = cats.totalClicks;
+            document.getElementsByClassName("totalClicks")[0].textContent = cats.totalClicks;
 
             // create list
             for (let i = 0; i < cats.cats.length; i++) {
-                let content = document.querySelector('#list').content;
-                content.querySelector('li').id = "list-" + cats.cats[i].name;
-                content.querySelector('li').textContent = cats.cats[i].name;
-                document.querySelector('#list-container').appendChild(document.importNode(content, true));
+                let content = document.querySelector("#list").content;
+                content.querySelector("li").id = "list-" + cats.cats[i].name;
+                content.querySelector("li").textContent = cats.cats[i].name;
+                document.querySelector("#list-container").appendChild(document.importNode(content, true));
             }
 
             // show clicked cat pic
-            $("li").on('click', function (event) {
+            $("li").on("click", function (event) {
                 for (let i = 0; i < cats.cats.length; i++) {
 
                     // identify clicked cat
                     if (event.target.id === "list-" + cats.cats[i].name) {
 
                         // remove existing cat pic if present
-                        let figureDoc = document.querySelector('figure');
+                        let figureDoc = document.querySelector("figure");
                         if (figureDoc) {
                             figureDoc.remove();
                         }
                         // create clicked cat pic
-                        let content = document.querySelector('#picture').content;
-                        content.querySelector('img').id = "image-" + cats.cats[i].name;
-                        content.querySelector('img').src = cats.cats[i].picUrl;
-                        content.querySelector('footer').textContent = cats.cats[i].picProvider;
-                        content.querySelector('figcaption').textContent = "My name is " + cats.cats[i].name;
-                        content.querySelector('p').id = "text-" + cats.cats[i].name;
-                        content.querySelector('p').textContent = "I have " + cats.cats[i].clicks + " clicks so far.";
-                        document.querySelector('#picture-container').appendChild(document.importNode(content, true));
+                        let content = document.querySelector("#picture").content;
+                        content.querySelector("img").id = "image-" + cats.cats[i].name;
+                        content.querySelector("img").src = cats.cats[i].picUrl;
+                        content.querySelector("footer").textContent = cats.cats[i].picProvider;
+                        content.querySelector("figcaption").textContent = "My name is " + cats.cats[i].name;
+                        content.querySelector("p").id = "text-" + cats.cats[i].name;
+                        content.querySelector("p").textContent = "I have " + cats.cats[i].clicks + " clicks so far.";
+                        document.querySelector("#picture-container").appendChild(document.importNode(content, true));
 
                         // create event for cat pic to handle clicks
-                        $(".catPic").on('click', function (event) {
+                        $(".catPic").on("click", function (event) {
                             cats.totalClicks++;
                             for (let i = 0; i < cats.cats.length; i++) {
                                 if (event.target.id === "image-" + cats.cats[i].name) {
@@ -161,7 +161,7 @@
                             }
                             let catsJson = JSON.stringify(cats);
                             localStorage.setItem("catClickerData", catsJson);
-                            document.getElementsByClassName('totalClicks')[0].textContent = cats.totalClicks;
+                            document.getElementsByClassName("totalClicks")[0].textContent = cats.totalClicks;
                         });
                     }
 
