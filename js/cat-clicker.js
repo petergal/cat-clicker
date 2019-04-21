@@ -5,7 +5,6 @@ $(function () {
             if (!localStorage.catClickerData) {
                 localStorage.catClickerData = JSON.stringify({
                         "totalClicks": 0,
-                        currentCat: null,
                         cats: [
                             {
                                 "id": 1,
@@ -48,109 +47,90 @@ $(function () {
             }
         },
         getCats: function () {
-            return JSON.parse(localStorage.catClickerData.cats);
+            return JSON.parse(localStorage.catClickerData).cats;
         },
         saveCat: function (catObj) {
-            let cats = model.getCats();
-            for (let i = 0; i < cats.cats.length; i++) {
+            let catClickerDataObj = JSON.parse(localStorage.catClickerData);
+            let cats = catClickerDataObj.cats;
+            for (let i = 0; i < cats.length; i++) {
                 // identify clicked cat
-                if (catObj.name === cats.cats[i].name) {
-                    cats.cats[i] = catObj;
-                    localStorage.catClickerData.cats = JSON.stringify(cats);
+                if (catObj.name === cats[i].name) {
+                    cats[i] = catObj;
+                    localStorage.catClickerData = JSON.stringify(catClickerDataObj);
                 }
             }
         },
-        setCurrentCat: function (currentCatObj) {
-            localStorage.catClickerData.currentCat = JSON.stringify(currentCatObj);
-        },
-        getCurrentCat: function () {
-            return JSON.parse(localStorage.catClickerData.currentCat);
+        getCatByName: function (name) {
+            let cats = JSON.parse(localStorage.catClickerData).cats;
+            for (let i = 0; i < cats.length; i++) {
+                if (name === cats[i].name) {
+                    return cats[i];
+                }
+            }
         },
         incrementTotalClicks () {
-            let totalClicks = JSON.parse(localStorage.catClickerData.totalClicks);
-            localStorage.catClickerData.totalClicks++;
+            let catClickerData = JSON.parse(localStorage.catClickerData);
+            catClickerData.totalClicks++;
+            localStorage.catClickerData = JSON.stringify(catClickerData);
         },
         getCounter () {
-            return JSON.parse(localStorage.catClickerData.totalClicks);
-        }
+            return JSON.parse(localStorage.catClickerData).totalClicks;
+        },
     };
 
     const octopus = {
         saveCat: function (catObj) {
-            model.setCurrentCat(catObj);
             model.saveCat(catObj);
-            viewTotalCounter.render();
-            viewCat.render();
+            view.render(catObj.name);
         },
         getCats: function () {
             return model.getCats();
         },
         init: function () {
             model.init();
-            viewCatList.init();
-            viewTotalCounter.render();
-            viewCat.init();
+            view.init();
         },
-        setCurrentCat (catObj) {
-            model.setCurrentCat(catObj);
-        },
-        getCurrentCat () {
-            return model.getCurrentCat();
+        getCatByName (name) {
+            return model.getCatByName(name);
         },
         incrementTotalClicks () {
             model.incrementTotalClicks();
-            viewCat.render();
+            view.render();
         },
         getCounter () {
             return model.getCounter();
-        }
+        },
     };
 
-    const viewCatList = {
+    const view = {
         init: function () {
             this.totalClicksElem = document.getElementsByClassName("totalClicks")[0];
-            this.totalClicksElem.textContent = 0;
-            viewCatList.render();
-        },
-        render: function () {
-            const cats = octopus.getCats();
-            this.totalClicksElem.textContent = cats.totalClicks;
+            this.totalClicksElem.textContent = octopus.getCounter();
+            let cats = octopus.getCats();
 
-            for (let i = 0; i < cats.cats.length; i++) {
+            for (let i = 0; i < cats.length; i++) {
                 let content = document.querySelector("#list").content;
-                content.querySelector("li").id = "list-" + cats.cats[i].name;
-                content.querySelector("li").textContent = cats.cats[i].name;
+                content.querySelector("li").id = "list-" + cats[i].name;
+                content.querySelector("li").textContent = cats[i].name;
                 document.querySelector("#list-container").appendChild(document.importNode(content, true));
             }
-            $("li").on("click", function (event) {
-                for (let i = 0; i < cats.cats.length; i++) {
-
-                    // identify clicked cat
-                    if (event.target.id === "list-" + cats.cats[i].name) {
-                        octopus.setCurrentCat(cats.cats[i]);
-                        viewCat.render();
-                    }
-
-                }
-            });
-        }
-    };
-
-    const viewCat = {
-        init: function () {
-            let cats = octopus.getCats();
             $("li").on("click", function (event) {
                 for (let i = 0; i < cats.length; i++) {
                     // identify clicked cat
                     if (event.target.id === "list-" + cats[i].name) {
-                        octopus.setCurrentCat();
-                        viewCat.render();
+                        view.render(cats[i].name);
                     }
                 }
             });
         },
-        render: function () {
-            let currentCat = octopus.getCurrentCat();
+        render: function (name = null) {
+            document.getElementsByClassName("totalClicks")[0].textContent = octopus.getCounter();
+
+            if (name != null) {
+                this.name = name;
+            }
+
+            let currentCat = octopus.getCatByName(this.name);
             // remove existing cat pic if present
             let figureDoc = document.querySelector("figure");
             if (figureDoc) {
@@ -169,24 +149,15 @@ $(function () {
             // create event for cat pic to handle clicks
             $(".catPic").on("click", function (event) {
                 octopus.incrementTotalClicks();
-                for (let i = 0; i < cats.cats.length; i++) {
-                    if (event.target.id === "image-" + currentCat.name) {
-                        currentCat.clicks++;
-                        octopus.saveCat(cat);
-                    }
-                }
+                currentCat.clicks++;
+                octopus.saveCat(currentCat);
             });
 
         }
     };
 
-    const viewTotalCounter = {
-        render: function () {
-            document.getElementsByClassName("totalClicks")[0].textContent = octopus.getCounter();
-        }
-    };
-
     octopus.init();
+    // model.test();
 });
 
 
