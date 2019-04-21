@@ -1,10 +1,11 @@
 $(function () {
 
-    var model = {
+    const model = {
         init: function () {
             if (!localStorage.catClickerData) {
                 localStorage.catClickerData = JSON.stringify({
                         "totalClicks": 0,
+                        currentCat: null,
                         cats: [
                             {
                                 "id": 1,
@@ -45,19 +46,40 @@ $(function () {
                     }
                 );
             }
-
         },
         getCats: function () {
-            return JSON.parse(localStorage.catClickerData);
+            return JSON.parse(localStorage.catClickerData.cats);
         },
-        saveCats: function (catsObj) {
-            localStorage.catClickerData = JSON.stringify(catsObj);
+        saveCat: function (catObj) {
+            let cats = model.getCats();
+            for (let i = 0; i < cats.cats.length; i++) {
+                // identify clicked cat
+                if (catObj.name === cats.cats[i].name) {
+                    cats.cats[i] = catObj;
+                    localStorage.catClickerData.cats = JSON.stringify(cats);
+                }
+            }
+        },
+        setCurrentCat: function (currentCatObj) {
+            localStorage.catClickerData.currentCat = JSON.stringify(currentCatObj);
+        },
+        getCurrentCat: function () {
+            return JSON.parse(localStorage.catClickerData.currentCat);
+        },
+        incrementTotalClicks () {
+            let totalClicks = JSON.parse(localStorage.catClickerData.totalClicks);
+            localStorage.catClickerData.totalClicks++;
+        },
+        getCounter () {
+            return JSON.parse(localStorage.catClickerData.totalClicks);
         }
     };
 
-    var octopus = {
-        saveCats: function (catsObj) {
-            model.saveCats(catsObj);
+    const octopus = {
+        saveCat: function (catObj) {
+            model.setCurrentCat(catObj);
+            model.saveCat(catObj);
+            viewTotalCounter.render();
             viewCat.render();
         },
         getCats: function () {
@@ -66,11 +88,25 @@ $(function () {
         init: function () {
             model.init();
             viewCatList.init();
+            viewTotalCounter.render();
             viewCat.init();
+        },
+        setCurrentCat (catObj) {
+            model.setCurrentCat(catObj);
+        },
+        getCurrentCat () {
+            return model.getCurrentCat();
+        },
+        incrementTotalClicks () {
+            model.incrementTotalClicks();
+            viewCat.render();
+        },
+        getCounter () {
+            return model.getCounter();
         }
     };
 
-    var viewCatList = {
+    const viewCatList = {
         init: function () {
             this.totalClicksElem = document.getElementsByClassName("totalClicks")[0];
             this.totalClicksElem.textContent = 0;
@@ -86,52 +122,67 @@ $(function () {
                 content.querySelector("li").textContent = cats.cats[i].name;
                 document.querySelector("#list-container").appendChild(document.importNode(content, true));
             }
-        }
-    };
-
-    var viewCat = {
-        init: function () {
-            var cats = octopus.getCats();
             $("li").on("click", function (event) {
                 for (let i = 0; i < cats.cats.length; i++) {
 
                     // identify clicked cat
                     if (event.target.id === "list-" + cats.cats[i].name) {
-
-                        // remove existing cat pic if present
-                        let figureDoc = document.querySelector("figure");
-                        if (figureDoc) {
-                            figureDoc.remove();
-                        }
-                        // create clicked cat pic
-                        let content = document.querySelector("#picture").content;
-                        content.querySelector("img").id = "image-" + cats.cats[i].name;
-                        content.querySelector("img").src = cats.cats[i].picUrl;
-                        content.querySelector("footer").textContent = cats.cats[i].picProvider;
-                        content.querySelector("figcaption").textContent = "My name is " + cats.cats[i].name;
-                        content.querySelector("p").id = "text-" + cats.cats[i].name;
-                        content.querySelector("p").textContent = "I have " + cats.cats[i].clicks + " clicks so far.";
-                        document.querySelector("#picture-container").appendChild(document.importNode(content, true));
-
-                        // create event for cat pic to handle clicks
-                        $(".catPic").on("click", function (event) {
-                            cats.totalClicks++;
-                            for (let i = 0; i < cats.cats.length; i++) {
-                                if (event.target.id === "image-" + cats.cats[i].name) {
-                                    cats.cats[i].clicks++;
-                                    document.getElementById("text-" + cats.cats[i].name).textContent = "I have " + cats.cats[i].clicks + " clicks so far.";
-                                }
-                            }
-                            document.getElementsByClassName("totalClicks")[0].textContent = cats.totalClicks;
-                            octopus.saveCats(cats);
-                        });
+                        octopus.setCurrentCat(cats.cats[i]);
+                        viewCat.render();
                     }
 
                 }
             });
+        }
+    };
+
+    const viewCat = {
+        init: function () {
+            let cats = octopus.getCats();
+            $("li").on("click", function (event) {
+                for (let i = 0; i < cats.length; i++) {
+                    // identify clicked cat
+                    if (event.target.id === "list-" + cats[i].name) {
+                        octopus.setCurrentCat();
+                        viewCat.render();
+                    }
+                }
+            });
         },
         render: function () {
+            let currentCat = octopus.getCurrentCat();
+            // remove existing cat pic if present
+            let figureDoc = document.querySelector("figure");
+            if (figureDoc) {
+                figureDoc.remove();
+            }
+            // create clicked cat pic
+            let content = document.querySelector("#picture").content;
+            content.querySelector("img").id = "image-" + currentCat.name;
+            content.querySelector("img").src = currentCat.picUrl;
+            content.querySelector("footer").textContent = currentCat.picProvider;
+            content.querySelector("figcaption").textContent = "My name is " + currentCat.name;
+            content.querySelector("p").id = "text-" + currentCat.name;
+            content.querySelector("p").textContent = "I have " + currentCat.clicks + " clicks so far.";
+            document.querySelector("#picture-container").appendChild(document.importNode(content, true));
 
+            // create event for cat pic to handle clicks
+            $(".catPic").on("click", function (event) {
+                octopus.incrementTotalClicks();
+                for (let i = 0; i < cats.cats.length; i++) {
+                    if (event.target.id === "image-" + currentCat.name) {
+                        currentCat.clicks++;
+                        octopus.saveCat(cat);
+                    }
+                }
+            });
+
+        }
+    };
+
+    const viewTotalCounter = {
+        render: function () {
+            document.getElementsByClassName("totalClicks")[0].textContent = octopus.getCounter();
         }
     };
 
