@@ -50,8 +50,8 @@ $(function () {
         getCats: function () {
             return JSON.parse(localStorage.catClickerData);
         },
-        saveCats: function () {
-
+        saveCats: function (catsObj) {
+            localStorage.catClickerData = JSON.stringify(catsObj);
         }
     };
 
@@ -72,12 +72,13 @@ $(function () {
 
     var viewCatList = {
         init: function () {
-            document.getElementsByClassName("totalClicks")[0].textContent = 0;
+            this.totalClicksElem = document.getElementsByClassName("totalClicks")[0];
+            this.totalClicksElem.textContent = 0;
             viewCatList.render();
         },
         render: function () {
-            var cats = octopus.getCats();
-            document.getElementsByClassName("totalClicks")[0].textContent = cats.totalClicks;
+            const cats = octopus.getCats();
+            this.totalClicksElem.textContent = cats.totalClicks;
 
             for (let i = 0; i < cats.cats.length; i++) {
                 let content = document.querySelector("#list").content;
