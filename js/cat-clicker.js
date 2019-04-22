@@ -141,9 +141,17 @@ $(function () {
                     }
                 }
             });
-            // admin butten
+            // admin gui buttons
             document.getElementById("adminButton").addEventListener("click", function () {
                 octopus.switchAdminVisible();
+                view.render();
+            });
+            document.getElementById("cancelButton").addEventListener("click", function () {
+                console.log('cancel');
+                view.render();
+            });
+            document.getElementById("saveButton").addEventListener("click", function () {
+                console.log('save');
                 view.render();
             });
             view.render();
