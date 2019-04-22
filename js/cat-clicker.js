@@ -104,8 +104,7 @@ $(function () {
 
     const view = {
         init: function () {
-            this.totalClicksElem = document.getElementsByClassName("totalClicks")[0];
-            this.totalClicksElem.textContent = octopus.getCounter();
+            document.getElementsByClassName("totalClicks")[0].textContent = octopus.getCounter();
             let cats = octopus.getCats();
 
             for (let i = 0; i < cats.length; i++) {
