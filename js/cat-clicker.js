@@ -42,6 +42,7 @@ $(function () {
                                 "clicks": 0
                             },
                         ],
+                        currentCat: null,
                         adminVisible: false
                     }
                 );
@@ -55,19 +56,19 @@ $(function () {
             let cats = catClickerDataObj.cats;
             for (let i = 0; i < cats.length; i++) {
                 // identify clicked cat
-                if (catObj.name === cats[i].name) {
+                if (catObj.id === cats[i].id) {
                     cats[i] = catObj;
                     localStorage.catClickerData = JSON.stringify(catClickerDataObj);
                 }
             }
         },
-        getCatByName: function (name) {
-            let cats = JSON.parse(localStorage.catClickerData).cats;
-            for (let i = 0; i < cats.length; i++) {
-                if (name === cats[i].name) {
-                    return cats[i];
-                }
-            }
+        getCurrentCat: function () {
+            return JSON.parse(localStorage.catClickerData).currentCat;
+        },
+        setCurrentCat: function (cat) {
+            let catClickerData = JSON.parse(localStorage.catClickerData);
+            catClickerData.currentCat = cat;
+            localStorage.catClickerData = JSON.stringify(catClickerData);
         },
         incrementTotalClicks: function () {
             let catClickerData = JSON.parse(localStorage.catClickerData);
@@ -94,7 +95,8 @@ $(function () {
     const octopus = {
         saveCat: function (catObj) {
             model.saveCat(catObj);
-            view.render(catObj.name);
+            model.setCurrentCat(catObj);
+            view.render();
         },
         getCats: function () {
             return model.getCats();
@@ -103,8 +105,11 @@ $(function () {
             model.init();
             view.init();
         },
-        getCatByName: function (name) {
-            return model.getCatByName(name);
+        getCurrentCat: function () {
+            return model.getCurrentCat();
+        },
+        setCurrentCat: function (cat) {
+            model.setCurrentCat(cat);
         },
         incrementTotalClicks: function () {
             model.incrementTotalClicks();
@@ -129,15 +134,16 @@ $(function () {
 
             for (let i = 0; i < cats.length; i++) {
                 let content = document.querySelector("#list").content;
-                content.querySelector("li").id = "list-" + cats[i].name;
+                content.querySelector("li").id = "list-" + cats[i].id;
                 content.querySelector("li").textContent = cats[i].name;
                 document.querySelector("#list-container").appendChild(document.importNode(content, true));
             }
             $("li").on("click", function (event) {
                 for (let i = 0; i < cats.length; i++) {
                     // identify clicked cat
-                    if (event.target.id === "list-" + cats[i].name) {
-                        view.render(cats[i].name);
+                    if (event.target.id === "list-" + cats[i].id) {
+                        octopus.setCurrentCat(cats[i]);
+                        view.render();
                     }
                 }
             });
@@ -147,22 +153,24 @@ $(function () {
                 view.render();
             });
             document.getElementById("cancelButton").addEventListener("click", function () {
-                console.log('cancel');
                 view.render();
             });
             document.getElementById("saveButton").addEventListener("click", function () {
-                console.log('save');
+                let cat = octopus.getCurrentCat();
+                cat.name = document.getElementById("admin-name").value;
+                cat.picUrl = document.getElementById("admin-imageUrl").value;
+                cat.clicks = document.getElementById("admin-clicks").value;
+                octopus.saveCat(cat);
                 view.render();
             });
             view.render();
         },
-        render: function (name = null) {
+        render: function () {
             document.getElementsByClassName("totalClicks")[0].textContent = octopus.getCounter();
             let currentCat;
+            currentCat = octopus.getCurrentCat();
 
-            if (name != null) {
-                this.name = name;
-                currentCat = octopus.getCatByName(this.name);
+            if (currentCat != null) {
                 // remove existing cat pic if present
                 let figureDoc = document.querySelector("figure");
                 if (figureDoc) {
@@ -170,11 +178,11 @@ $(function () {
                 }
                 // create clicked cat pic
                 let content = document.querySelector("#picture").content;
-                content.querySelector("img").id = "image-" + currentCat.name;
+                content.querySelector("img").id = "image-" + currentCat.id;
                 content.querySelector("img").src = currentCat.picUrl;
                 content.querySelector("footer").textContent = currentCat.picProvider;
                 content.querySelector("figcaption").textContent = "My name is " + currentCat.name;
-                content.querySelector("p").id = "text-" + currentCat.name;
+                content.querySelector("p").id = "text-" + currentCat.id;
                 content.querySelector("p").textContent = "I have " + currentCat.clicks + " clicks so far.";
                 document.querySelector("#picture-container").appendChild(document.importNode(content, true));
 
