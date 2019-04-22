@@ -144,15 +144,17 @@ $(function () {
             // admin butten
             document.getElementById("adminButton").addEventListener("click", function () {
                 octopus.switchAdminVisible();
+                view.render();
             });
             view.render();
         },
         render: function (name = null) {
             document.getElementsByClassName("totalClicks")[0].textContent = octopus.getCounter();
+            let currentCat;
 
             if (name != null) {
                 this.name = name;
-                let currentCat = octopus.getCatByName(this.name);
+                currentCat = octopus.getCatByName(this.name);
                 // remove existing cat pic if present
                 let figureDoc = document.querySelector("figure");
                 if (figureDoc) {
@@ -179,6 +181,11 @@ $(function () {
             // admin gui
             if (octopus.isAdminVisible()) {
                 document.querySelector(".admin-wrapper").classList.remove("hide");
+                if (currentCat) {
+                    document.getElementById("admin-name").value = currentCat.name;
+                    document.getElementById("admin-imageUrl").value = currentCat.picUrl;
+                    document.getElementById("admin-clicks").value = currentCat.clicks;
+                }
             } else {
                 document.querySelector(".admin-wrapper").classList.add("hide");
             }
