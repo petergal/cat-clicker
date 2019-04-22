@@ -41,7 +41,8 @@ $(function () {
                                 "picProvider": "Photo by Alex Perez on Unsplash",
                                 "clicks": 0
                             },
-                        ]
+                        ],
+                        adminVisible: false
                     }
                 );
             }
@@ -68,14 +69,26 @@ $(function () {
                 }
             }
         },
-        incrementTotalClicks () {
+        incrementTotalClicks: function () {
             let catClickerData = JSON.parse(localStorage.catClickerData);
             catClickerData.totalClicks++;
             localStorage.catClickerData = JSON.stringify(catClickerData);
         },
-        getCounter () {
+        getCounter: function () {
             return JSON.parse(localStorage.catClickerData).totalClicks;
         },
+        isAdminVisible: function () {
+            return JSON.parse(localStorage.catClickerData).adminVisible;
+        },
+        switchAdminVisible: function () {
+            let catClickerData = JSON.parse(localStorage.catClickerData);
+            if (catClickerData.adminVisible) {
+                catClickerData.adminVisible = false;
+            } else {
+                catClickerData.adminVisible = true;
+            }
+            localStorage.catClickerData = JSON.stringify(catClickerData);
+        }
     };
 
     const octopus = {
@@ -90,16 +103,23 @@ $(function () {
             model.init();
             view.init();
         },
-        getCatByName (name) {
+        getCatByName: function (name) {
             return model.getCatByName(name);
         },
-        incrementTotalClicks () {
+        incrementTotalClicks: function () {
             model.incrementTotalClicks();
             view.render();
         },
-        getCounter () {
+        getCounter: function () {
             return model.getCounter();
         },
+        isAdminVisible: function () {
+            return model.isAdminVisible();
+        },
+        switchAdminVisible: function () {
+            model.switchAdminVisible();
+            view.render();
+        }
     };
 
     const view = {
@@ -121,37 +141,47 @@ $(function () {
                     }
                 }
             });
+            // admin butten
+            document.getElementById("adminButton").addEventListener("click", function () {
+                octopus.switchAdminVisible();
+            });
+            view.render();
         },
         render: function (name = null) {
             document.getElementsByClassName("totalClicks")[0].textContent = octopus.getCounter();
 
             if (name != null) {
                 this.name = name;
+                let currentCat = octopus.getCatByName(this.name);
+                // remove existing cat pic if present
+                let figureDoc = document.querySelector("figure");
+                if (figureDoc) {
+                    figureDoc.remove();
+                }
+                // create clicked cat pic
+                let content = document.querySelector("#picture").content;
+                content.querySelector("img").id = "image-" + currentCat.name;
+                content.querySelector("img").src = currentCat.picUrl;
+                content.querySelector("footer").textContent = currentCat.picProvider;
+                content.querySelector("figcaption").textContent = "My name is " + currentCat.name;
+                content.querySelector("p").id = "text-" + currentCat.name;
+                content.querySelector("p").textContent = "I have " + currentCat.clicks + " clicks so far.";
+                document.querySelector("#picture-container").appendChild(document.importNode(content, true));
+
+                // create event for cat pic to handle clicks
+                $(".catPic").on("click", function (event) {
+                    octopus.incrementTotalClicks();
+                    currentCat.clicks++;
+                    octopus.saveCat(currentCat);
+                });
             }
 
-            let currentCat = octopus.getCatByName(this.name);
-            // remove existing cat pic if present
-            let figureDoc = document.querySelector("figure");
-            if (figureDoc) {
-                figureDoc.remove();
+            // admin gui
+            if (octopus.isAdminVisible()) {
+                document.querySelector(".admin-wrapper").classList.remove("hide");
+            } else {
+                document.querySelector(".admin-wrapper").classList.add("hide");
             }
-            // create clicked cat pic
-            let content = document.querySelector("#picture").content;
-            content.querySelector("img").id = "image-" + currentCat.name;
-            content.querySelector("img").src = currentCat.picUrl;
-            content.querySelector("footer").textContent = currentCat.picProvider;
-            content.querySelector("figcaption").textContent = "My name is " + currentCat.name;
-            content.querySelector("p").id = "text-" + currentCat.name;
-            content.querySelector("p").textContent = "I have " + currentCat.clicks + " clicks so far.";
-            document.querySelector("#picture-container").appendChild(document.importNode(content, true));
-
-            // create event for cat pic to handle clicks
-            $(".catPic").on("click", function (event) {
-                octopus.incrementTotalClicks();
-                currentCat.clicks++;
-                octopus.saveCat(currentCat);
-            });
-
         }
     };
 
