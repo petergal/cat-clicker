@@ -28,3 +28,16 @@ h3 {
     font-size: small;
 }
 
+.hide {
+    display: none !important;
+}
+
+.admin-wrapper {
+    display: grid;
+    grid-template-columns: 100px 200px;
+    padding: 5px;
+}
+
+.admin-box {
+    padding: 1px;
+}
